@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveUserProfile } from "../../lib/storage";
 import { UserProfile } from "../../types";
@@ -13,7 +13,7 @@ export function OnboardingPage() {
     country: "United States",
     householdSize: 1,
     primaryCommuteMode: "Car",
-    fuelType: " पेट्रोल",
+    fuelType: "Petrol",
     dailyCommuteDistance: 10,
     monthlyElectricityUsage: 200,
     acUsageLevel: "Medium",

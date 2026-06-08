@@ -124,7 +124,7 @@ export function DashboardPage() {
             <div className="md:col-span-12 bg-surface-container-lowest rounded-2xl p-12 text-center border border-outline-variant shadow-soft">
               <Activity className="w-12 h-12 text-on-surface-variant mx-auto mb-4 opacity-50" />
               <h3 className="text-xl font-medium text-on-surface mb-2">No data yet</h3>
-              <p className="text-on-surface-variant mb-6">Start by adding your first activity to see your carbon insights.</p>
+              <p className="text-on-surface-variant mb-6">Start logging daily activities to understand your carbon impact.</p>
               <Link to="/add" className="px-6 py-2 bg-primary text-on-primary rounded-lg">Add Activity</Link>
             </div>
           ) : (
@@ -182,20 +182,23 @@ export function DashboardPage() {
                 <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-soft border-l-4 border-l-secondary-container relative overflow-hidden flex-grow flex flex-col">
                   <div className="flex items-center gap-2 mb-4">
                     <Leaf className="w-5 h-5 text-secondary" />
-                    <h3 className="text-lg font-semibold">EcoCoach Insight</h3>
+                    <h3 className="text-lg font-semibold">Impact Summary & Action</h3>
                   </div>
                   <div className="flex-grow">
-                    <p className="text-on-surface-variant mb-4">
-                      {insight.mainInsight}
+                    <p className="text-on-surface-variant mb-6 text-sm">
+                      <strong className="text-on-surface block mb-1">Your biggest carbon source:</strong> 
+                      {insight.whyItMatters}
                     </p>
                     <div className="bg-surface p-4 rounded-xl border border-outline-variant mb-6">
-                      <p className="text-sm">
-                        {insight.nextBestAction}
+                      <p className="text-sm font-semibold text-primary mb-1">Next Best Action:</p>
+                      <p className="text-sm text-on-surface mb-2">{insight.nextBestAction}</p>
+                      <p className="text-xs text-on-surface-variant">
+                        <strong>Why this action?</strong> Because {insight.topCategory} is your highest-impact category this week.
                       </p>
                     </div>
                   </div>
                   <Link to="/coach" className="w-full py-3 px-4 bg-transparent border-2 border-primary text-primary rounded-xl font-medium hover:bg-primary hover:text-on-primary transition-colors flex justify-center items-center gap-2">
-                    View Full Insight <ArrowRight className="w-4 h-4" />
+                    View Full EcoCoach <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               </div>

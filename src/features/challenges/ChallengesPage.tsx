@@ -1,18 +1,34 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Layout } from "../../components/Layout";
-import { WEEKLY_CHALLENGES } from "../../data/challenges";
-import { getChallengesState, updateChallengeStatus } from "../../lib/storage";
-import { CheckCircle, Clock } from "lucide-react";
+import { getChallengesState, updateChallengeStatus, getActivityLogs } from "../../lib/storage";
+import { calculateTotalFootprint } from "../../lib/carbonCalculator";
+import { getEcoInsight } from "../../lib/insightEngine";
+import { getPersonalizedChallenges } from "../../lib/challengeEngine";
+import { Category } from "../../types";
+import { CheckCircle, Clock, Star } from "lucide-react";
 
 export function ChallengesPage() {
   const [activeIds, setActiveIds] = useState<string[]>([]);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const [topCategory, setTopCategory] = useState<Category | null>(null);
 
   useEffect(() => {
     const s = getChallengesState();
     setActiveIds(s.active);
     setCompletedIds(s.completed);
+    
+    // Determine top category to prioritize personalized challenges
+    const logs = getActivityLogs();
+    const summary = calculateTotalFootprint(logs);
+    const insight = getEcoInsight(summary);
+    if (insight.topCategory) {
+      setTopCategory(insight.topCategory);
+    }
   }, []);
+
+  const sortedChallenges = useMemo(() => {
+    return getPersonalizedChallenges(topCategory);
+  }, [topCategory]);
 
   const handleStart = (id: string) => {
     updateChallengeStatus(id, "active");
@@ -36,15 +52,21 @@ export function ChallengesPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {WEEKLY_CHALLENGES.map((ch) => {
+          {sortedChallenges.map((ch) => {
             const isActive = activeIds.includes(ch.id);
             const isCompleted = completedIds.includes(ch.id);
+            const isRecommended = ch.category === topCategory;
 
             return (
               <div key={ch.id} className={`glass-card rounded-2xl p-6 flex flex-col h-full relative overflow-hidden group ${isActive ? "border-primary shadow-[0_0_0_2px_rgba(0,69,50,0.1)]" : ""} ${isCompleted ? "opacity-70" : ""}`}>
                 {isCompleted && (
                   <div className="absolute top-0 right-0 p-3">
                     <CheckCircle className="w-6 h-6 text-primary" />
+                  </div>
+                )}
+                {isRecommended && !isCompleted && !isActive && (
+                  <div className="absolute top-0 right-0 p-3 flex items-center gap-1 text-xs font-bold text-secondary-container">
+                    <Star className="w-4 h-4 fill-secondary-container" /> Recommended
                   </div>
                 )}
                 <div className={`absolute top-0 left-0 w-full h-1 ${ch.category === 'travel' ? 'bg-secondary-container' : ch.category === 'electricity' ? 'bg-primary-fixed' : 'bg-tertiary-container'}`}></div>

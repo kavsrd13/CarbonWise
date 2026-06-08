@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { LandingPage } from "./features/landing/LandingPage";
 import { OnboardingPage } from "./features/onboarding/OnboardingPage";
@@ -13,7 +14,7 @@ import { ChallengesPage } from "./features/challenges/ChallengesPage";
 import { SettingsPage } from "./features/profile/SettingsPage";
 import { isOnboardingCompleted } from "./lib/storage";
 
-function PrivateRoute({ children }: { children: JSX.Element }) {
+function PrivateRoute({ children }: { children: React.ReactNode }) {
   const isDone = isOnboardingCompleted();
   return isDone ? children : <Navigate to="/onboarding" />;
 }

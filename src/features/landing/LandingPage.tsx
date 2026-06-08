@@ -63,17 +63,20 @@ export function LandingPage() {
       <section className="w-full bg-surface-container-low py-16 border-y border-outline-variant mt-12">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-on-surface mb-4">A Simple Path to Sustainability</h2>
+            <h2 className="text-3xl font-bold text-on-surface mb-4">Track → Understand → Reduce</h2>
+            <p className="text-on-surface-variant max-w-2xl mx-auto">A simple three-step path to sustainability, powered by personalized insights.</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {['Track', 'Understand', 'Act', 'Improve'].map((step, idx) => (
-              <div key={step} className="flex flex-col items-center bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant shadow-sm relative">
-                <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary font-bold mb-4 border-2 border-primary-fixed-dim">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-4xl mx-auto">
+            {['Track', 'Understand', 'Reduce'].map((step, idx) => (
+              <div key={step} className="flex flex-col items-center bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant shadow-sm relative">
+                <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary font-bold mb-4 border-2 border-primary-fixed-dim text-lg">
                   {idx + 1}
                 </div>
-                <h4 className="text-lg font-semibold text-on-surface mb-2">{step}</h4>
+                <h4 className="text-xl font-semibold text-on-surface mb-3">{step}</h4>
                 <p className="text-sm text-on-surface-variant">
-                  {idx === 0 ? "Log daily habits" : idx === 1 ? "See the data" : idx === 2 ? "Follow insights" : "Lower emissions"}
+                  {idx === 0 ? "Log your daily habits and see your estimated footprint." 
+                   : idx === 1 ? "Analyze simple charts and read personalized explanations." 
+                   : "Take recommended actions and complete weekly challenges."}
                 </p>
               </div>
             ))}

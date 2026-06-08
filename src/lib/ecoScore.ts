@@ -1,34 +1,43 @@
 import { CarbonSummary, UserProfile, ActivityLog, Challenge } from "../types";
 
+/**
+ * EcoScore is a gamified rating (0-100) that evaluates a user's environmental impact.
+ * The logic is deterministic:
+ * 1. Base Score is 100 (or 80 if no data logged yet).
+ * 2. Deductions occur for heavy footprints (e.g. weekly > 30kg or 50kg) and 
+ *    poor profile habits (e.g. constant car usage or no recycling).
+ * 3. Additions (+2 pts) occur when users complete weekly challenges, 
+ *    and for high tracking consistency (+5 to +10 pts for logging over multiple unique days).
+ */
 export function calculateEcoScore(
   summary: CarbonSummary,
   profile: UserProfile | null,
   logs: ActivityLog[],
   completedChallengesCount: number
 ): number {
-  let score = 100;
+  let score = summary.total === 0 ? 80 : 100;
 
-  // Nothing logged yet? Let's start neutral/good
-  if (summary.total === 0) return 80;
+  // Only apply footprint penalties if there's actual data
+  if (summary.total > 0) {
+    const { byCategory, weeklyTotal } = summary;
 
-  const { byCategory, weeklyTotal } = summary;
+    // Penalize high weekly footprints
+    // Assuming a "good" weekly footprint is ~25kg
+    if (weeklyTotal > 50) {
+      score -= 10;
+    } else if (weeklyTotal > 30) {
+      score -= 5;
+    }
 
-  // Penalize high weekly footprints
-  // Assuming a "good" weekly footprint is ~25kg
-  if (weeklyTotal > 50) {
-    score -= 10;
-  } else if (weeklyTotal > 30) {
-    score -= 5;
-  }
+    const categoryTotal = Object.values(byCategory).reduce((a, b) => a + b, 0);
 
-  const categoryTotal = Object.values(byCategory).reduce((a, b) => a + b, 0);
+    if (categoryTotal > 0) {
+      const travelPct = byCategory.travel / categoryTotal;
+      const electPct = byCategory.electricity / categoryTotal;
 
-  if (categoryTotal > 0) {
-    const travelPct = byCategory.travel / categoryTotal;
-    const electPct = byCategory.electricity / categoryTotal;
-
-    if (travelPct > 0.4) score -= 10;
-    if (electPct > 0.35) score -= 5;
+      if (travelPct > 0.4) score -= 10;
+      if (electPct > 0.35) score -= 5;
+    }
   }
 
   // Profile-based deductions

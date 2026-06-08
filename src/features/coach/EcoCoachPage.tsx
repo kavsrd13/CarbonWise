@@ -63,12 +63,14 @@ export function EcoCoachPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
                   <Leaf className="w-5 h-5 text-primary" />
-                  <span className="font-medium text-primary">Next Best Action</span>
+                  <span className="font-medium text-primary block">Next Best Action:</span>
                 </div>
-                <h3 className="text-xl font-semibold text-on-surface mb-2">{insight.nextBestAction}</h3>
-                <p className="text-on-surface-variant text-sm">{insight.estimatedImpact}</p>
+                <h3 className="text-xl font-semibold text-on-surface mb-3">{insight.nextBestAction}</h3>
+                <div className="bg-surface-container-lowest p-4 rounded-lg mb-4 text-sm text-on-surface-variant border border-outline-variant">
+                  <strong className="text-on-surface">Why this action?</strong> Because {insight.topCategory || 'it'} is your highest-impact category this week. {insight.estimatedImpact}
+                </div>
               </div>
-              <div className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex flex-col items-center justify-center min-w-[150px]">
+              <div className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex flex-col items-center justify-center min-w-[150px] w-full md:w-auto">
                 <span className="text-xs uppercase font-medium text-on-surface-variant tracking-wider mb-1">Weekly Goal</span>
                 <span className="text-2xl font-bold text-primary">Action</span>
               </div>

@@ -1,4 +1,4 @@
-import { useState, useMemo, FormEvent } from "react";
+import React, { useState, FormEvent, ReactNode } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Layout } from "../../components/Layout";
 import { Category, ActivityLog } from "../../types";
@@ -96,6 +96,47 @@ export function AddActivityPage() {
 const inputClass = "w-full px-4 py-3 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface text-sm focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-colors";
 const labelClass = "block text-sm font-medium text-on-surface mb-1.5";
 
+function BaseForm({
+  children,
+  onSubmit,
+  quantityLabel,
+  quantity,
+  setQuantity,
+  date,
+  setDate,
+  quantityId,
+  step = "0.1"
+}: {
+  children?: ReactNode;
+  onSubmit: (e: FormEvent) => void;
+  quantityLabel: string;
+  quantity: string;
+  setQuantity: (val: string) => void;
+  date: string;
+  setDate: (val: string) => void;
+  quantityId: string;
+  step?: string;
+}) {
+  return (
+    <form onSubmit={onSubmit} className="flex flex-col gap-5">
+      {children}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label htmlFor={quantityId} className={labelClass}>{quantityLabel}</label>
+          <input id={quantityId} type="number" step={step} value={quantity} onChange={(e) => setQuantity(e.target.value)} className={inputClass} />
+        </div>
+        <div>
+          <label htmlFor={`${quantityId}Date`} className={labelClass}>Date</label>
+          <input id={`${quantityId}Date`} type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
+        </div>
+      </div>
+      <div className="pt-4 flex justify-end">
+        <button type="submit" className="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-container transition-colors">Save Activity</button>
+      </div>
+    </form>
+  );
+}
+
 function TravelForm({ onSave, setError }: { onSave: (log: ActivityLog) => void, setError: (m: string) => void }) {
   const [mode, setMode] = useState("car");
   const [fuel, setFuel] = useState("petrol");
@@ -109,17 +150,16 @@ function TravelForm({ onSave, setError }: { onSave: (log: ActivityLog) => void, 
     if (!date) return setError("Date is required.");
     setError("");
 
-    // match factor key
     let typeKey = mode;
     if (mode === "car" || mode === "bike") {
       typeKey = `${mode}_${fuel}`;
       if (fuel === "electric") typeKey = "electric_vehicle";
-      if (fuel === "none") typeKey = "walk"; // fallback edgecase
+      if (fuel === "none") typeKey = "walk";
     }
 
     const co2 = calculateTravelEmission(typeKey, d);
     onSave({
-      id: "MOCK_UUID", // using mock to avoid heavy deps, better logic later
+      id: uuidv4(),
       category: "travel",
       activityType: typeKey,
       quantity: d,
@@ -131,10 +171,10 @@ function TravelForm({ onSave, setError }: { onSave: (log: ActivityLog) => void, 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <BaseForm onSubmit={handleSubmit} quantityLabel="Distance (km)" quantity={distance} setQuantity={setDistance} date={date} setDate={setDate} quantityId="travelDistance">
       <div>
-        <label className={labelClass}>Transport Mode</label>
-        <select value={mode} onChange={(e) => setMode(e.target.value)} className={inputClass}>
+        <label htmlFor="travelMode" className={labelClass}>Transport Mode</label>
+        <select id="travelMode" value={mode} onChange={(e) => setMode(e.target.value)} className={inputClass}>
           <option value="walk">Walk</option>
           <option value="cycle">Cycle</option>
           <option value="bike">Bike</option>
@@ -145,8 +185,8 @@ function TravelForm({ onSave, setError }: { onSave: (log: ActivityLog) => void, 
       </div>
       {(mode === "car" || mode === "bike") && (
         <div>
-          <label className={labelClass}>Fuel Type</label>
-          <select value={fuel} onChange={(e) => setFuel(e.target.value)} className={inputClass}>
+          <label htmlFor="travelFuel" className={labelClass}>Fuel Type</label>
+          <select id="travelFuel" value={fuel} onChange={(e) => setFuel(e.target.value)} className={inputClass}>
             <option value="none">None</option>
             <option value="petrol">Petrol</option>
             <option value="diesel">Diesel</option>
@@ -154,25 +194,11 @@ function TravelForm({ onSave, setError }: { onSave: (log: ActivityLog) => void, 
           </select>
         </div>
       )}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Distance (km)</label>
-          <input type="number" step="0.1" value={distance} onChange={(e) => setDistance(e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>Date</label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
-        </div>
-      </div>
-      <div className="pt-4 flex justify-end">
-        <button type="submit" className="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-container">Calculate & Save</button>
-      </div>
-    </form>
+    </BaseForm>
   );
 }
 
-// SIMILAR STRUCTURE FOR OTHERS (Electricity, Food, Shopping, Waste)
-function ElectricityForm({ onSave, setError }: any) {
+function ElectricityForm({ onSave, setError }: { onSave: (log: ActivityLog) => void, setError: (m: string) => void }) {
   const [usage, setUsage] = useState("100");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
@@ -184,29 +210,15 @@ function ElectricityForm({ onSave, setError }: any) {
     setError("");
 
     const co2 = calculateElectricityEmission(q);
-    onSave({ id: "UUID", category: "electricity", activityType: "grid", quantity: q, unit: "kWh", emissionKgCO2e: co2, date, createdAt: new Date().toISOString() });
+    onSave({ id: uuidv4(), category: "electricity", activityType: "grid", quantity: q, unit: "kWh", emissionKgCO2e: co2, date, createdAt: new Date().toISOString() });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Usage (kWh)</label>
-          <input type="number" step="1" value={usage} onChange={(e) => setUsage(e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>Date</label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
-        </div>
-      </div>
-      <div className="pt-4 flex justify-end">
-        <button type="submit" className="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium">Calculate & Save</button>
-      </div>
-    </form>
+    <BaseForm onSubmit={handleSubmit} quantityLabel="Usage (kWh)" quantity={usage} setQuantity={setUsage} date={date} setDate={setDate} quantityId="elecUsage" step="1" />
   );
 }
 
-function FoodForm({ onSave, setError }: any) {
+function FoodForm({ onSave, setError }: { onSave: (log: ActivityLog) => void, setError: (m: string) => void }) {
   const [meal, setMeal] = useState("mixed");
   const [qty, setQty] = useState("1");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -219,14 +231,14 @@ function FoodForm({ onSave, setError }: any) {
     setError("");
 
     const co2 = calculateFoodEmission(meal, q);
-    onSave({ id: "UUID", category: "food", activityType: meal, quantity: q, unit: "meals", emissionKgCO2e: co2, date, createdAt: new Date().toISOString() });
+    onSave({ id: uuidv4(), category: "food", activityType: meal, quantity: q, unit: "meals", emissionKgCO2e: co2, date, createdAt: new Date().toISOString() });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <BaseForm onSubmit={handleSubmit} quantityLabel="Meals" quantity={qty} setQuantity={setQty} date={date} setDate={setDate} quantityId="foodQty" step="1">
       <div>
-        <label className={labelClass}>Meal Type</label>
-        <select value={meal} onChange={(e) => setMeal(e.target.value)} className={inputClass}>
+        <label htmlFor="foodMealType" className={labelClass}>Meal Type</label>
+        <select id="foodMealType" value={meal} onChange={(e) => setMeal(e.target.value)} className={inputClass}>
           <option value="vegan">Vegan</option>
           <option value="vegetarian">Vegetarian</option>
           <option value="mixed">Mixed</option>
@@ -235,24 +247,11 @@ function FoodForm({ onSave, setError }: any) {
           <option value="packaged">Packaged</option>
         </select>
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Meals</label>
-          <input type="number" value={qty} onChange={(e) => setQty(e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>Date</label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
-        </div>
-      </div>
-      <div className="pt-4 flex justify-end">
-        <button type="submit" className="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium">Save</button>
-      </div>
-    </form>
+    </BaseForm>
   );
 }
 
-function ShoppingForm({ onSave, setError }: any) {
+function ShoppingForm({ onSave, setError }: { onSave: (log: ActivityLog) => void, setError: (m: string) => void }) {
   const [item, setItem] = useState("clothes");
   const [qty, setQty] = useState("1");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -262,42 +261,28 @@ function ShoppingForm({ onSave, setError }: any) {
     const q = parseFloat(qty);
     if (isNaN(q) || q < 0) return setError("Quantity cannot be negative.");
     if (!date) return setError("Date is required.");
-    
     setError("");
 
     const co2 = calculateShoppingEmission(item, q);
-    onSave({ id: "UUID", category: "shopping", activityType: item, quantity: q, unit: "items", emissionKgCO2e: co2, date, createdAt: new Date().toISOString() });
+    onSave({ id: uuidv4(), category: "shopping", activityType: item, quantity: q, unit: "items", emissionKgCO2e: co2, date, createdAt: new Date().toISOString() });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <BaseForm onSubmit={handleSubmit} quantityLabel="Quantity" quantity={qty} setQuantity={setQty} date={date} setDate={setDate} quantityId="shopQty" step="1">
       <div>
-        <label className={labelClass}>Item Type</label>
-        <select value={item} onChange={(e) => setItem(e.target.value)} className={inputClass}>
+        <label htmlFor="shopItem" className={labelClass}>Item Type</label>
+        <select id="shopItem" value={item} onChange={(e) => setItem(e.target.value)} className={inputClass}>
           <option value="clothes">Clothes</option>
           <option value="electronics">Electronics</option>
           <option value="household">Household</option>
           <option value="other">Other</option>
         </select>
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Quantity</label>
-          <input type="number" value={qty} onChange={(e) => setQty(e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>Date</label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
-        </div>
-      </div>
-      <div className="pt-4 flex justify-end">
-        <button type="submit" className="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium">Save</button>
-      </div>
-    </form>
+    </BaseForm>
   );
 }
 
-function WasteForm({ onSave, setError }: any) {
+function WasteForm({ onSave, setError }: { onSave: (log: ActivityLog) => void, setError: (m: string) => void }) {
   const [type, setType] = useState("general");
   const [qty, setQty] = useState("1");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -310,32 +295,19 @@ function WasteForm({ onSave, setError }: any) {
     setError("");
 
     const co2 = calculateWasteEmission(type, q);
-    onSave({ id: "UUID", category: "waste", activityType: type, quantity: q, unit: "kg", emissionKgCO2e: co2, date, createdAt: new Date().toISOString() });
+    onSave({ id: uuidv4(), category: "waste", activityType: type, quantity: q, unit: "kg", emissionKgCO2e: co2, date, createdAt: new Date().toISOString() });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <BaseForm onSubmit={handleSubmit} quantityLabel="Quantity (kg)" quantity={qty} setQuantity={setQty} date={date} setDate={setDate} quantityId="wasteQty">
       <div>
-        <label className={labelClass}>Waste Type</label>
-        <select value={type} onChange={(e) => setType(e.target.value)} className={inputClass}>
+        <label htmlFor="wasteType" className={labelClass}>Waste Type</label>
+        <select id="wasteType" value={type} onChange={(e) => setType(e.target.value)} className={inputClass}>
           <option value="general">General</option>
           <option value="recycled">Recycled</option>
           <option value="compost">Compost</option>
         </select>
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Quantity (kg)</label>
-          <input type="number" value={qty} onChange={(e) => setQty(e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>Date</label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
-        </div>
-      </div>
-      <div className="pt-4 flex justify-end">
-        <button type="submit" className="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium">Save</button>
-      </div>
-    </form>
+    </BaseForm>
   );
 }

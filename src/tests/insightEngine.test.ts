@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { getEcoInsight } from "../lib/insightEngine";
-import { CarbonSummary } from "../types";
+import { CarbonSummary, Category } from "../types";
 
 describe("Smart Insight Engine", () => {
   it("identifies travel as top category", () => {
@@ -25,7 +25,7 @@ describe("Smart Insight Engine", () => {
   it("handles empty data with starter guidance", () => {
     const summary: CarbonSummary = {
       total: 0,
-      byCategory: {},
+      byCategory: { travel: 0, food: 0, electricity: 0, shopping: 0, waste: 0 },
       dailyHistory: {},
       weeklyTotal: 0
     };

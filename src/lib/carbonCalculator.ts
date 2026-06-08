@@ -1,6 +1,13 @@
 import { ActivityLog, Category, CarbonSummary } from "../types";
 import { emissionFactors } from "../data/emissionFactors";
 
+/**
+ * Calculators use simplistic, standardized global assumptions for demonstration purposes.
+ * Formula: Emission (kg CO2e) = Quantity * Emission Factor.
+ * E.g., 10 km walked = 10 * 0 = 0 kg CO2e.
+ * 10 km driven in petrol car = 10 * 0.19 = 1.9 kg CO2e.
+ * These factors are strictly mapped in src/data/emissionFactors.ts.
+ */
 export function calculateEmission(category: Category, type: string, quantity: number): number {
   if (quantity < 0) return 0;
   

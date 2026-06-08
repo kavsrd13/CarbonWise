@@ -1,5 +1,12 @@
 import { CarbonSummary, EcoInsight, Category } from "../types";
 
+/**
+ * Smart Insight Engine provides the deterministic "rule-based" logic for the EcoCoach.
+ * Instead of pinging an expensive external LLM API, the engine identifies the 
+ * highest-emitting category for the user mathematically. It then matches that 
+ * category to a pre-defined subset of expert advice, serving a 'Next Best Action'
+ * and a tailored 7-Day action plan logically aligned with the user's biggest impact area.
+ */
 export function getEcoInsight(summary: CarbonSummary): EcoInsight {
   const { byCategory, weeklyTotal } = summary;
 

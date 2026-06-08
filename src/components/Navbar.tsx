@@ -17,7 +17,7 @@ export function Navbar() {
   return (
     <nav className="w-full sticky top-0 bg-surface border-b border-outline-variant shadow-sm z-50">
       <div className="flex justify-between items-center h-16 px-4 md:px-8 max-w-7xl mx-auto">
-        <Link to="/" className="flex items-center gap-2 cursor-pointer group">
+        <Link to="/" className="flex items-center gap-2 cursor-pointer group" aria-label="Go to Home">
           <Leaf className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
           <span className="font-bold text-2xl text-primary tracking-tight">CarbonWise</span>
         </Link>
@@ -37,7 +37,7 @@ export function Navbar() {
               <Plus className="w-4 h-4" />
               Add Activity
             </Link>
-            <Link to="/settings" className="text-on-surface-variant hover:text-primary p-2 rounded-full hover:bg-surface-container-low transition-colors">
+            <Link to="/settings" className="text-on-surface-variant hover:text-primary p-2 rounded-full hover:bg-surface-container-low transition-colors" aria-label="Open Settings">
               <Settings className="w-5 h-5" />
             </Link>
           </div>
