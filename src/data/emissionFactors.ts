@@ -1,3 +1,10 @@
+/**
+ * Carbon estimate assumptions:
+ * These emission factors represent reasonable global or regional average estimates 
+ * for educational purposes in a prototype application. 
+ * Real-world accounting varies by precise location, grid mix, and time of day.
+ * Units are mostly in kg CO2e per unit of activity (e.g. per km, per kWh, per meal).
+ */
 export const emissionFactors: Record<string, Record<string, number>> = {
   travel: {
     walk: 0,

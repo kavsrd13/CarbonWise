@@ -11,6 +11,26 @@ import { UserProfile, CarbonSummary, EcoInsight } from "../../types";
 
 const COLORS = ['#004532', '#006591', '#39b8fd', '#8bd6b6', '#4a564f'];
 
+function FootprintCard({ title, value }: { title: string, value: number }) {
+  return (
+    <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-soft border border-outline-variant col-span-1 md:col-span-2">
+      <div className="text-sm font-medium text-on-surface-variant mb-4">{title}</div>
+      <div className="text-3xl font-bold text-on-surface">
+        {value} <span className="text-base font-normal text-on-surface-variant">kg CO₂e</span>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ label, value, className = "" }: { label: string, value: React.ReactNode, className?: string }) {
+  return (
+    <div className={`bg-surface-container-lowest rounded-2xl p-4 shadow-soft border border-outline-variant flex items-center gap-4 ${className}`}>
+      <div className="text-sm text-on-surface-variant flex-grow">{label}</div>
+      <div className="text-lg font-bold text-on-surface capitalize">{value}</div>
+    </div>
+  );
+}
+
 export function DashboardPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [summary, setSummary] = useState<CarbonSummary | null>(null);
@@ -81,19 +101,8 @@ export function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
           {/* Summary Cards */}
           <div className="md:col-span-12 grid grid-cols-2 md:grid-cols-6 gap-6">
-            <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-soft border border-outline-variant col-span-1 md:col-span-2">
-              <div className="text-sm font-medium text-on-surface-variant mb-4">Today's Footprint</div>
-              <div className="text-3xl font-bold text-on-surface">
-                {summary.dailyHistory[new Date().toISOString().split('T')[0]] || 0} <span className="text-base font-normal text-on-surface-variant">kg CO₂e</span>
-              </div>
-            </div>
-            
-            <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-soft border border-outline-variant col-span-1 md:col-span-2">
-              <div className="text-sm font-medium text-on-surface-variant mb-4">Weekly Footprint</div>
-              <div className="text-3xl font-bold text-on-surface">
-                {summary.weeklyTotal} <span className="text-base font-normal text-on-surface-variant">kg CO₂e</span>
-              </div>
-            </div>
+            <FootprintCard title="Today's Footprint" value={summary.dailyHistory[new Date().toISOString().split('T')[0]] || 0} />
+            <FootprintCard title="Weekly Footprint" value={summary.weeklyTotal} />
 
             <div className="bg-primary rounded-2xl p-6 shadow-soft col-span-2 md:col-span-2 text-on-primary">
               <div className="text-sm font-medium mb-4 flex items-center gap-2">
@@ -106,18 +115,9 @@ export function DashboardPage() {
           </div>
 
           <div className="md:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-soft border border-outline-variant flex items-center gap-4">
-              <div className="text-sm text-on-surface-variant flex-grow">Top Category</div>
-              <div className="text-lg font-bold text-on-surface capitalize">{insight.topCategory || "None"}</div>
-            </div>
-            <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-soft border border-outline-variant flex items-center gap-4">
-              <div className="text-sm text-on-surface-variant flex-grow">CO₂ Saved</div>
-              <div className="text-lg font-bold text-on-surface">{saved} kg</div>
-            </div>
-            <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-soft border border-outline-variant flex items-center gap-4">
-              <div className="text-sm text-on-surface-variant flex-grow">Current Streak</div>
-              <div className="text-lg font-bold text-on-surface">{streak} days</div>
-            </div>
+            <StatCard label="Top Category" value={insight.topCategory || "None"} />
+            <StatCard label="CO₂ Saved" value={`${saved} kg`} />
+            <StatCard label="Current Streak" value={`${streak} days`} />
           </div>
 
           {!pieData.length ? (

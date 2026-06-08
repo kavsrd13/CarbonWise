@@ -1,19 +1,24 @@
 export type Category = "travel" | "electricity" | "food" | "shopping" | "waste";
+export type CommuteMode = "Walk" | "Cycle" | "Bike" | "Car" | "Bus" | "Train";
+export type FuelType = "None" | "Petrol" | "Diesel" | "Electric";
+export type DietType = "Vegetarian" | "Mixed" | "High Meat" | "Vegan";
+export type Frequency = "Rare" | "Sometimes" | "Often" | "Low" | "Medium" | "High" | "Never";
+export type AcUsage = "Low" | "Medium" | "High";
 
 export interface UserProfile {
   name: string;
   city: string;
   country: string;
   householdSize: number;
-  primaryCommuteMode: string;
-  fuelType: string;
+  primaryCommuteMode: CommuteMode;
+  fuelType: FuelType;
   dailyCommuteDistance: number;
   monthlyElectricityUsage: number;
-  acUsageLevel: string;
-  dietType: string;
-  foodDeliveryFrequency: string;
-  shoppingFrequency: string;
-  recyclingHabit: string;
+  acUsageLevel: AcUsage;
+  dietType: DietType;
+  foodDeliveryFrequency: Frequency;
+  shoppingFrequency: Frequency;
+  recyclingHabit: Frequency;
 }
 
 export interface ActivityLog {

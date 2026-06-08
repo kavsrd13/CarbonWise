@@ -27,25 +27,26 @@ export function OnboardingPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
+    // Type assertion via unknown to circumvent specific union type matching in a general text handler
+    setProfile(prev => ({ ...prev, [name]: (value as unknown) }));
   };
 
   const nextStep = () => {
     // Validation
-    const tempErrors: Record<string, string> = {};
+    const validationErrors: Record<string, string> = {};
     if (step === 1) {
-      if (!profile.name || profile.name.trim() === "") tempErrors.name = "Name is required.";
-      if (Number(profile.householdSize) < 1) tempErrors.householdSize = "Household size must be at least 1.";
+      if (!profile.name || profile.name.trim() === "") validationErrors.name = "Name is required.";
+      if (Number(profile.householdSize) < 1) validationErrors.householdSize = "Household size must be at least 1.";
     }
     if (step === 2) {
-      if (Number(profile.dailyCommuteDistance) < 0) tempErrors.dailyCommuteDistance = "Distance cannot be negative.";
+      if (Number(profile.dailyCommuteDistance) < 0) validationErrors.dailyCommuteDistance = "Distance cannot be negative.";
     }
     if (step === 3) {
-      if (Number(profile.monthlyElectricityUsage) < 0) tempErrors.monthlyElectricityUsage = "Usage cannot be negative.";
+      if (Number(profile.monthlyElectricityUsage) < 0) validationErrors.monthlyElectricityUsage = "Usage cannot be negative.";
     }
 
-    if (Object.keys(tempErrors).length > 0) {
-      setErrors(tempErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
     
@@ -59,7 +60,7 @@ export function OnboardingPage() {
     navigate("/dashboard");
   };
 
-  const pct = (step / 5) * 100;
+  const progressPercentage = (step / 5) * 100;
 
   return (
     <Layout>
@@ -76,10 +77,10 @@ export function OnboardingPage() {
             <div className="mb-10">
               <div className="flex justify-between text-sm font-medium text-on-surface-variant mb-3">
                 <span>Step {step} of 5</span>
-                <span>{pct}%</span>
+                <span>{progressPercentage}%</span>
               </div>
               <div className="h-2 w-full bg-surface-container rounded-full overflow-hidden">
-                <div className="h-full bg-primary transition-all duration-300" style={{ width: `${pct}%` }}></div>
+                <div className="h-full bg-primary transition-all duration-300" style={{ width: `${progressPercentage}%` }}></div>
               </div>
             </div>
 
